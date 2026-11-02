@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اللوحات التفاعلية للعمليات الحسابية في بايثون - الصف العاشر</title>
+    <!-- استدعاء خط تجريدي عصري وأيقونات FontAwesome -->
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #6C5CE7;
+            --secondary-color: #FD79A8;
+            --text-color: #2D3436;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Tajawal', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #a8c0ff 0%, #3f2b96 100%);
+            min-height: 100vh;
+            padding: 30px 15px;
+            color: var(--text-color);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* الهيدر والعنوان */
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        header h1 {
+            font-size: 2.6rem;
+            font-weight: 900;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #FFEAA7, #FF7675);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .instruction {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(5px);
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 20px;
+            margin-top: 10px;
+            font-size: 0.95rem;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+
+        /* شبكة اللوحات التعليمية */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        /* حاوي اللوحة مع خاصية Perspective ثلاثية الأبعاد */
+        .flip-card {
+            background-color: transparent;
+            width: 100%;
+            height: 420px;
+            perspective: 1000px;
+            cursor: pointer;
+        }
+
+        /* الجزء الداخلي الذي يدور */
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform-style: preserve-3d;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        /* كلاس التدوير عند النقر */
+        .flip-card.flipped .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+
+        /* الوجه والظهر */
+        .flip-card-front, .flip-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            border-radius: 20px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        /* --- الوجه الأمامي للبطاقة --- */
+        .flip-card-front {
+            color: white;
+            padding: 30px 20px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .front-icon {
+            font-size: 2.5rem;
+            margin-top: 10px;
+            opacity: 0.8;
+        }
+
+        .symbol-badge {
+            font-size: 4.5rem;
+            font-weight: 900;
+            background: rgba(255,255,255,0.2);
+            width: 130px;
+            height: 130px;
+            line-height: 130px;
+            border-radius: 50%;
+            margin: 20px auto;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.1);
+            font-family: monospace;
+            border: 3px dashed rgba(255, 255, 255, 0.5);
+        }
+
+        .card-title {
+            font-size: 2rem;
+            font-weight: 900;
+        }
+
+        .card-subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .click-hint {
+            margin-top: auto;
+            font-size: 0.9rem;
+            background: rgba(0, 0, 0, 0.15);
+            padding: 8px 15px;
+            border-radius: 15px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        /* --- الوجه الخلفي للبطاقة --- */
+        .flip-card-back {
+            background-color: #ffffff;
+            color: var(--text-color);
+            transform: rotateY(180deg);
+            padding: 20px;
+            text-align: right;
+            border: 4px solid #6C5CE7;
+        }
+
+        .back-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #F0F0F0;
+            padding-bottom: 10px;
+            margin-bottom: 12px;
+        }
+
+        .back-header h3 {
+            font-size: 1.3rem;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-symbol {
+            font-family: monospace;
+            background: #6C5CE7;
+            color: white;
+            padding: 2px 10px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+        }
+
+        .description {
+            font-size: 0.95rem;
+            line-height: 1.5;
+            background: #F8F9FA;
+            padding: 10px;
+            border-radius: 10px;
+            border-right: 4px solid var(--primary-color);
+            margin-bottom: 12px;
+        }
+
+        /* كود بايثون */
+        .code-box {
+            background: #2D3436;
+            color: #DFE6E9;
+            border-radius: 10px;
+            padding: 12px;
+            font-family: 'Courier New', Courier, monospace;
+            direction: ltr;
+            text-align: left;
+            margin-bottom: 12px;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .code-box span.var { color: #74B9FF; }
+        .code-box span.op { color: #FF7675; font-weight: bold; }
+        .code-box span.func { color: #55E6C1; }
+        .code-box span.num { color: #FFEAA7; }
+
+        .result-box {
+            background: #E1F5FE;
+            border: 2px dashed #0288D1;
+            border-radius: 8px;
+            padding: 8px;
+            text-align: center;
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #01579B;
+            transition: all 0.3s ease;
+        }
+
+        .interactive-btn {
+            margin-top: 10px;
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            background: var(--primary-color);
+            color: white;
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .interactive-btn:hover {
+            background: #5649c0;
+        }
+
+        /* ألوان الخلفيات للوجه الأمامي لكل لوحة */
+        .card-add .flip-card-front { background: linear-gradient(135deg, #FF7675, #d63031); }
+        .card-add .flip-card-back { border-color: #FF7675; }
+
+        .card-sub .flip-card-front { background: linear-gradient(135deg, #74B9FF, #0984e3); }
+        .card-sub .flip-card-back { border-color: #74B9FF; }
+
+        .card-mul .flip-card-front { background: linear-gradient(135deg, #55E6C1, #00b894); }
+        .card-mul .flip-card-back { border-color: #00b894; }
+
+        .card-div .flip-card-front { background: linear-gradient(135deg, #FDCB6E, #e17055); }
+        .card-div .flip-card-back { border-color: #e17055; }
+
+        .card-fdiv .flip-card-front { background: linear-gradient(135deg, #A29BFE, #6c5ce7); }
+        .card-fdiv .flip-card-back { border-color: #6c5ce7; }
+
+        .card-mod .flip-card-front { background: linear-gradient(135deg, #FD79A8, #e84393); }
+        .card-mod .flip-card-back { border-color: #e84393; }
+
+        .card-exp .flip-card-front { background: linear-gradient(135deg, #FAB1A0, #e17055); }
+        .card-exp .flip-card-back { border-color: #FAB1A0; }
+
+        footer {
+            text-align: center;
+            color: white;
+            margin-top: 40px;
+            font-size: 0.95rem;
+            opacity: 0.85;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+            100% { transform: scale(1); }
+        }
+
+        .pulse-anim {
+            animation: pulse 0.3s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1><i class="fa-solid fa-laptop-code"></i> اللوحات التفاعلية لبايثون</h1>
+            <p>منهج تقنية المعلومات - الصف العاشر ✨</p>
+            <div class="instruction">
+                <i class="fa-solid fa-hand-pointer"></i> اضغطي على أي بطاقة لقلبها واكتشاف الشرح والأمثلة!
+            </div>
+        </header>
+
+        <div class="cards-grid">
+
+            <!-- 1. الجمع -->
+            <div class="flip-card card-add" onclick="toggleFlip(this)">
+                <div class="flip-card-inner">
+                    <!-- الوجه الأمامي -->
+                    <div class="flip-card-front">
+                        <div class="front-icon"><i class="fa-solid fa-plus-circle"></i></div>
+                        <div class="symbol-badge">+</div>
+                        <div class="card-title">الجمع</div>
+                        <div class="card-subtitle">Addition</div>
+                        <div class="click-hint"><i class="fa-solid fa-rotate"></i> اضغطي لرؤية المثال</div>
+                    </div>
+                    <!-- الوجه الخلفي -->
+                    <div class="flip-card-back">
+                        <div class="back-header">
+                            <h3><i class="fa-solid fa-calculator"></i> الجمع</h3>
+                            <span class="back-symbol">+</span>
+                        </div>
+                        <div class="description">
+                            تُستخدم عملية الجمع لإضافة قيمتين أو متغيرين للحصول على المجموع الكلي[cite: 1].
+                        </div>
+                        <div class="code-box">
+                            <span class="var">num_1</span> = <span class="num">23</span><br>
+                            <span class="var">num_2</span> = <span class="num">5</span><br>
+                            <span class="func">print</span>(<span class="var">num_1</span> <span class="op">+</span> <span class="var">num_2</span>)
+                        </div>
+                        <div class="result-box" id="res-add">
+                            الناتج: <strong>28</strong>[cite: 1]
+                        </div>
+                        <button class="interactive-btn" onclick="runDemo(event, 'res-add', '28')">
+                            <i class="fa-solid fa-play"></i> تشغيل الكود
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. الطرح -->
+            <div class="flip-card card-sub" onclick="toggleFlip(this)">
+                <div class="flip-card-inner">
+                    <div class="flip-card-front">
+                        <div class="front-icon"><i class="fa-solid fa-minus-circle"></i></div>
+                        <div class="symbol-badge">-</div>
+                        <div class="card-title">الطرح</div>
+                        <div class="card-subtitle">Subtraction</div>
+                        <div class="click-hint"><i class="fa-solid fa-rotate"></i> اضغطي لرؤية المثال</div>
+                    </div>
+                    <div class="flip-card-back">
+                        <div class="back-header">
+                            <h3><i class="fa-solid fa-calculator"></i> الطرح</h3>
+                            <span class="back-symbol">-</span>
+                        </div>
+                        <div class="description">
+                            تُستخدم عملية الطرح لإيجاد الفرق بين قيمة ومتغير آخر[cite: 1].
+                        </div>
+                        <div class="code-box">
+                            <span class="var">num_1</span> = <span class="num">23</span><br>
+                            <span class="var">num_2</span> = <span class="num">5</span><br>
+                            <span class="func">print</span>(<span class="var">num_1</span> <span class="op">-</span> <span class="var">num_2</span>)
+                        </div>
+                        <div class="result-box" id="res-sub">
+                            الناتج: <strong>18</strong>[cite: 1]
+                        </div>
+                        <button class="interactive-btn" onclick="runDemo(event, 'res-sub', '18')">
+                            <i class="fa-solid fa-play"></i> تشغيل الكود
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. الضرب -->
+            <div class="flip-card card-mul" onclick="toggleFlip(this)">
+                <div class="flip-card-inner">
+                    <div class="flip-card-front">
+                        <div class="front-icon"><i class="fa-solid fa-asterisk"></i></div>
+                        <div class="symbol-badge">*</div>
+                        <div class="card-title">الضرب</div>
+                        <div class="card-subtitle">Multiplication</div>
+                        <div class="click-hint"><i class="fa-solid fa-rotate"></i> اضغطي لرؤية المثال</div>
+                    </div>
+                    <div class="flip-card-back">
+                        <div class="back-header">
+                            <h3><i class="fa-solid fa-calculator"></i> الضرب</h3>
+                            <span class="back-symbol">*</span>
+                        </div>
+                        <div class="description">
+                            تُستخدم عملية الضرب لضرب القيم، ويرمز لها بالنجمة (*) في لغة بايثون[cite: 1].
+                        </div>
+                        <div class="code-box">
+                            <span class="var">num_1</span> = <span class="num">23</span><br>
+                            <span class="var">num_2</span> = <span class="num">5</span><br>
+                            <span class="func">print</span>(<span class="var">num_1</span> <span class="op">*</span> <span class="var">num_2</span>)
+                        </div>
+                        <div class="result-box" id="res-mul">
+                            الناتج: <strong>115</strong>[cite: 1]
+                        </div>
+                        <button class="interactive-btn" onclick="runDemo(event, 'res-mul', '115')">
+                            <i class="fa-solid fa-play"></i> تشغيل الكود
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. القسمة -->
+            <div class="flip-card card-div" onclick="toggleFlip(this)">
+                <div class="flip-card-inner">
+                    <div class="flip-card-front">
+                        <div class="front-icon"><i class="fa-solid fa-divide"></i></div>
+                        <div class="symbol-badge">/</div>
+                        <div class="card-title">القسمة</div>
+                        <div class="card-subtitle">Division</div>
+                        <div class="click-hint"><i class="fa-solid fa-rotate"></i> اضغطي لرؤية المثال</div>
+                    </div>
+                    <div class="flip-card-back">
+                        <div class="back-header">
+                            <h3><i class="fa-solid fa-calculator"></i> القسمة</h3>
+                            <span class="back-symbol">/</span>
+                        </div>
+                        <div class="description">
+                            تُرجع ناتج القسمة العادية على شكل عدد عشري حقيقي[cite: 1].
+                        </div>
+                        <div class="code-box">
+                            <span class="var">num_1</span> = <span class="num">23</span><br>
+                            <span class="var">num_2</span> = <span class="num">5</span><br>
+                            <span class="func">print</span>(<span class="var">num_1</span> <span class="op">/</span> <span class="var">num_2</span>)
+                        </div>
+                        <div class="result-box" id="res-div">
+                            الناتج: <strong>4.6</strong>[cite: 1]
+                        </div>
+                        <button class="interactive-btn" onclick="runDemo(event, 'res-div', '4.6')">
+                            <i class="fa-solid fa-play"></i> تشغيل الكود
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. ناتج القسمة الصحيح -->
+            <div class="flip-card card-fdiv" onclick="toggleFlip(this)">
+                <div class="flip-card-inner">
+                    <div class="flip-card-front">
+                        <div class="front-icon"><i class="fa-solid fa-slash"></i></div>
+                        <div class="symbol-badge">//</div>
+                        <div class="card-title">قسمة صحيحة</div>
+                        <div class="card-subtitle">Floor Division</div>
+                        <div class="click-hint"><i class="fa-solid fa-rotate"></i> اضغطي لرؤية المثال</div>
+                    </div>
+                    <div class="flip-card-back">
+                        <div class="back-header">
+                            <h3><i class="fa-solid fa-calculator"></i> ناتج القسمة الصحيح</h3>
+                            <span class="back-symbol">//</span>
+                        </div>
+                        <div class="description">
+                            تقوم بإجراء القسمة وتتجاهل الجزء العشري/الكسور، لتُعطي الناتج الصحيح فقط[cite: 1].
+                        </div>
+                        <div class="code-box">
+                            <span class="var">num_1</span> = <span class="num">23</span><br>
+                            <span class="var">num_2</span> = <span class="num">5</span><br>
+                            <span class="func">print</span>(<span class="var">num_1</span> <span class="op">//</span> <span class="var">num_2</span>)
+                        </div>
+                        <div class="result-box" id="res-fdiv">
+                            الناتج: <strong>4</strong>[cite: 1]
+                        </div>
+                        <button class="interactive-btn" onclick="runDemo(event, 'res-fdiv', '4')">
+                            <i class="fa-solid fa-play"></i> تشغيل الكود
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 6. باقي القسمة -->
+            <div class="flip-card card-mod" onclick="toggleFlip(this)">
+                <div class="flip-card-inner">
+                    <div class="flip-card-front">
+                        <div class="front-icon"><i class="fa-solid fa-percent"></i></div>
+                        <div class="symbol-badge">%</div>
+                        <div class="card-title">باقي القسمة</div>
+                        <div class="card-subtitle">Modulus</div>
+                        <div class="click-hint"><i class="fa-solid fa-rotate"></i> اضغطي لرؤية المثال</div>
+                    </div>
+                    <div class="flip-card-back">
+                        <div class="back-header">
+                            <h3><i class="fa-solid fa-calculator"></i> باقي القسمة</h3>
+                            <span class="back-symbol">%</span>
+                        </div>
+                        <div class="description">
+                            تُعطي المتبقي من عملية القسمة بعد أخذ العدد الصحيح منها[cite: 1].
+                        </div>
+                        <div class="code-box">
+                            <span class="var">num_1</span> = <span class="num">23</span><br>
+                            <span class="var">num_2</span> = <span class="num">5</span><br>
+                            <span class="func">print</span>(<span class="var">num_1</span> <span class="op">%</span> <span class="var">num_2</span>)
+                        </div>
+                        <div class="result-box" id="res-mod">
+                            الناتج: <strong>3</strong>[cite: 1]
+                        </div>
+                        <button class="interactive-btn" onclick="runDemo(event, 'res-mod', '3')">
+                            <i class="fa-solid fa-play"></i> تشغيل الكود
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 7. الأس/الرفع -->
+            <div class="flip-card card-exp" onclick="toggleFlip(this)">
+                <div class="flip-card-inner">
+                    <div class="flip-card-front">
+                        <div class="front-icon"><i class="fa-solid fa-superscript"></i></div>
+                        <div class="symbol-badge">**</div>
+                        <div class="card-title">الرفع لأس</div>
+                        <div class="card-subtitle">Exponentiation</div>
+                        <div class="click-hint"><i class="fa-solid fa-rotate"></i> اضغطي لرؤية المثال</div>
+                    </div>
+                    <div class="flip-card-back">
+                        <div class="back-header">
+                            <h3><i class="fa-solid fa-calculator"></i> رفع العدد لأس</h3>
+                            <span class="back-symbol">**</span>
+                        </div>
+                        <div class="description">
+                            تُستخدم لرفع العدد لأس محدد باستخدام رمز النجمتين المزدوجة (**)[cite: 1].
+                        </div>
+                        <div class="code-box">
+                            <span class="var">num_2</span> = <span class="num">5</span><br>
+                            <span class="func">print</span>(<span class="var">num_2</span> <span class="op">**</span> <span class="num">2</span>)<br>
+                            <span class="func">print</span>(<span class="var">num_2</span> <span class="op">**</span> <span class="num">3</span>)
+                        </div>
+                        <div class="result-box" id="res-exp">
+                            الناتج: <strong>25</strong> و <strong>125</strong>[cite: 1]
+                        </div>
+                        <button class="interactive-btn" onclick="runDemo(event, 'res-exp', '25 و 125')">
+                            <i class="fa-solid fa-play"></i> تشغيل الكود
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <footer>
+            <p>تم إعداد هذه اللوحات التعليمية خصيصاً لطالبات الصف العاشر | مادة تقنية المعلومات 💻🌸</p>
+        </footer>
+    </div>
+
+    <script>
+        // دالة تدوير اللوحة الوجه والظهر عند النقر
+        function toggleFlip(cardElement) {
+            cardElement.classList.toggle('flipped');
+        }
+
+        // دالة تشغيل محاكي الكود
+        function runDemo(event, elementId, resultValue) {
+            // منع تدوير البطاقة مرة أخرى عند الضغط على زر التشغيل بالداخل
+            event.stopPropagation();
+            
+            const resultBox = document.getElementById(elementId);
+            
+            resultBox.classList.remove('pulse-anim');
+            void resultBox.offsetWidth;
+            resultBox.classList.add('pulse-anim');
+            
+            resultBox.style.backgroundColor = '#C8E6C9';
+            resultBox.style.borderColor = '#388E3C';
+            resultBox.style.color = '#1B5E20';
+            resultBox.innerHTML = '⚡ الشاشة: <strong>' + resultValue + '</strong>';
+
+            setTimeout(() => {
+                resultBox.style.backgroundColor = '#E1F5FE';
+                resultBox.style.borderColor = '#0288D1';
+                resultBox.style.color = '#01579B';
+                resultBox.innerHTML = 'الناتج: <strong>' + resultValue + '</strong>';
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
